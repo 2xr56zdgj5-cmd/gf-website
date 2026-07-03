@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>💕 我们的小宇宙</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        
+        * { font-family: 'Noto Sans SC', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background: linear-gradient(135deg, #fff0f3 0%, #ffe4e6 30%, #fce7f3 70%, #fff0f5 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .nav-item.active {
+            color: #fb7185;
+        }
+        .nav-item.active .nav-icon {
+            background: linear-gradient(135deg, #fb7185, #f472b6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(251, 113, 133, 0.4);
+        }
+        
+        .nav-icon {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        .page.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .float-anim { animation: float 3s ease-in-out infinite; }
+        .float-anim-delay { animation: float 3s ease-in-out 1.5s infinite; }
+        
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+        
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.15); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.15); }
+            70% { transform: scale(1); }
+        }
+        .heart-beat { animation: heartBeat 1.5s ease-in-out infinite; }
+        
+        .calendar-day {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .calendar-day:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+        .calendar-day.today {
+            border: 2px solid #fb7185;
+        }
+        .calendar-day.period {
+            background: linear-gradient(135deg, #fb7185, #f472b6);
+            color: white;
+            box-shadow: 0 2px 8px rgba(251, 113, 133, 0.3);
+        }
+        .calendar-day.predicted {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+        }
+        .calendar-day.ovulation {
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+            color: white;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+        }
+        .calendar-day.fertile {
+            background: rgba(167, 139, 250, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        
+        .love-card {
+            background: linear-gradient(135deg, #fff0f5, #ffe4e6);
+            border: 1px solid rgba(251, 113, 133, 0.2);
+        }
+        
+        .preference-tag {
+            transition: all 0.2s ease;
+        }
+        .preference-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .note-bubble {
+            position: relative;
+            background: linear-gradient(135deg, #fce7f3, #ffe4e6);
+        }
+        .note-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #ffe4e6;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #fb7185, #f472b6);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(251, 113, 133, 0.4);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .floating-particles {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            opacity: 0.3;
+            animation: particleFloat 15s infinite linear;
+        }
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+        
+        .stat-number {
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .modal-overlay {
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
+        }
+        
+        .countdown-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,240,245,0.9));
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #fda4af; border-radius: 4px; }
+        
+        .wish-card {
+            background: linear-gradient(135deg, #fff0f5, #fdf2f8);
+            transition: all 0.3s ease;
+        }
+        .wish-card:hover {
+            transform: translateY(-3px) rotate(1deg);
+            box-shadow: 0 8px 25px rgba(251, 113, 133, 0.15);
+        }
+        .wish-card:nth-child(even):hover {
+            transform: translateY(-3px) rotate(-1deg);
+        }
+    </style>
+</head>
+<body class="text-gray-700 pb-24">
+    <div class="floating-particles" id="particles"></div>
+
+    <header class="fixed top-0 left-0 right-0 z-50 glass-card px-4 py-3">
+        <div class="max-w-lg mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">💕</span>
+                <h1 class="font-bold text-lg text-pink-500">我们的小宇宙</h1>
+            </div>
+            <div class="text-sm text-pink-400 font-medium" id="headerDate"></div>
+        </div>
+    </header>
+
+    <main class="max-w-lg mx-auto px-4 pt-20 relative z-10">
+        <section id="page-home" class="page active">
+            <div class="glass-card rounded-3xl p-6 mb-6 text-center">
+                <div class="text-5xl mb-3 float-anim">🌸</div>
+                <h2 class="text-xl font-bold text-gray-800 mb-1">欢迎来到我们的小宇宙</h2>
+                <p class="text-sm text-gray-500 mb-4">记录每一个珍贵的瞬间</p>
+                <div class="bg-pink-50 rounded-2xl p-4 mb-4">
+                    <div class="text-3xl font-bold text-pink-500 stat-number" id="daysTogether">0</div>
+                    <div class="text-sm text-gray-500">我们在一起的天数</div>
+                </div>
+                <div class="text-sm text-pink-400 italic" id="dailyQuote"></div>
+            </div>
+            <div class="glass-card rounded-3xl p-5 mb-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-pink-500 text-lg">🌙</span>
+                    <h3 class="font-bold text-gray-800">经期状态</h3>
+                </div>
+                <div id="periodOverview" class="space-y-3">
+                    <div class="text-sm text-gray-500 text-center py-4">暂无记录，去添加吧~</div>
+                </div>
+            </div>
+            <div class="glass-card rounded-3xl p-5 mb-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-amber-500 text-lg">✨</span>
+                    <h3 class="font-bold text-gray-800">即将到来的纪念日</h3>
+                </div>
+                <div id="anniversaryOverview" class="space-y-3">
+                    <div class="text-sm text-gray-500 text-center py-4">还没有纪念日哦</div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="glass-card rounded-2xl p-4 text-center cursor-pointer" onclick="switchTab('period')">
+                    <div class="text-2xl mb-2 float-anim">🌙</div>
+                    <div class="font-medium text-gray-700">经期记录</div>
+                    <div class="text-xs text-gray-400 mt-1">记录与预测</div>
+                </div>
+                <div class="glass-card rounded-2xl p-4 text-center cursor-pointer" onclick="switchTab('preferences')">
+                    <div class="text-2xl mb-2 float-anim-delay">💝</div>
+                    <div class="font-medium text-gray-700">喜好档案</div>
+                    <div class="text-xs text-gray-400 mt-1">她的一切喜好</div>
+                </div>
+                <div class="glass-card rounded-2xl p-4 text-center cursor-pointer" onclick="switchTab('anniversary')">
+                    <div class="text-2xl mb-2 float-anim">🎂</div>
+                    <div class="font-medium text-gray-700">纪念日</div>
+                    <div class="text-xs text-gray-400 mt-1">重要的日子</div>
+                </div>
+                <div class="glass-card rounded-2xl p-4 text-center cursor-pointer" onclick="switchTab('notes')">
+                    <div class="text-2xl mb-2 float-anim-delay">💌</div>
+                    <div class="font-medium text-gray-700">留言板</div>
+                    <div class="text-xs text-gray-400 mt-1">写给她的悄悄话</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-period" class="page">
+            <div class="glass-card rounded-3xl p-5 mb-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-pink-500 text-lg">🌙</span>
+                        <h3 class="font-bold text-gray-800">经期日历</h3>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-full bg-pink-50 text-pink-500 hover:bg-pink-100 transition flex items-center justify-center">
+                            <i class="fas fa-chevron-left text-xs"></i>
+                        </button>
+                        <span id="calendarTitle" class="font-bold text-gray-700 min-w-[100px] text-center"></span>
+                        <button onclick="changeMonth(1)" class="w-8 h-8 rounded-full bg-pink-50 text-pink-500 hover:bg-pink-100 transition flex items-center justify-center">
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-7 gap-1 mb-2">
+                    <div class="text-center text-xs text-gray-400 py-2">日</div>
+                    <div class="text-center text-xs text-gray-400 py-2">一</div>
+                    <div class="text-center text-xs text-gray-400 py-2">二</div>
+                    <div class="text-center text-xs text-gray-400 py-2">三</div>
+                    <div class="text-center text-xs text-gray-400 py-2">四</div>
+                    <div class="text-center text-xs text-gray-400 py-2">五</div>
+                    <div class="text-center text-xs text-gray-400 py-2">六</div>
+                </div>
+                <div id="calendarGrid" class="grid grid-cols-7 gap-1"></div>
+                <div class="flex flex-wrap gap-3 mt-4 text-xs text-gray-500">
+                    <div class="flex items-center gap-1">
+                        <div class="w-3 h-3 rounded-full bg-gradient-to-br from-pink-400 to-pink-500"></div>
+                        <span>经期</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <div class="w-3 h-3 rounded-full bg-gradient-to-br from-purple-400 to-purple-500"></div>
+                        <span>排卵期</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <div class="w-3 h-3 rounded-full bg-gradient-to-br from-amber-400 to-amber-500"></div>
+                        <span>预测经期</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <div class="w-3 h-3 rounded-full border border-purple-300 bg-purple-100"></div>
+                        <span>易孕期</span>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card rounded-3xl p-5 mb-4">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-pink-500 text-lg">📊</span>
+                    <h3 class="font-bold text-gray-800">周期统计</h3>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-pink-50 rounded-2xl p-4 text-center">
+                        <div class="text-2xl font-bold text-pink-500 stat-number" id="avgCycle">28</div>
+                        <div class="text-xs text-gray-500 mt-1">平均周期(天)</div>
+                    </div>
+                    <div class="bg-pink-50 rounded-2xl p-4 text-center">
+                        <div class="text-2xl font-bold text-pink-500 stat-number" id="avgDuration">5</div>
+                        <div class="text-xs text-gray-500 mt-1">平均经期(天)</div>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-amber-50 rounded-xl text-sm text-amber-700" id="periodPrediction">
+                    <i class="fas fa-lightbulb mr-1"></i> 记录至少两次经期后，可以开始预测周期
+                </div>
+            </div>
+            <div class="glass-card rounded-3xl p-5 mb-4">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-pink-500 text-lg">➕</span>
+                    <h3 class="font-bold text-gray-800">快速记录</h3>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">经期开始日期</label>
+                        <input type="date" id="periodStartDate" class="w-full px-4 py-2.5 rounded-xl bg-pink-50 border border-pink-100 focus:outline-none focus:border-pink-300 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">持续天数</label>
+                        <div class="flex items-center gap-3">
+                            <input type="range" id="periodDurationSlider" min="1" max="10" value="5" 
+                                class="flex-1 h-2 bg-pink-100 rounded-lg appearance-none cursor-pointer accent-pink-400"
+                                oninput="document.getElementById('periodDurationValue').textContent=this.value+'天'">
+                            <span id="periodDurationValue" class="text-pink-500 font-bold w-10 text-right">5天</span>
+                        </div>
+                    </div>
+                    <button onclick="addPeriodRecord()" class="btn-primary w-full py-3 rounded-xl text-white font-bold text-sm">
+                        <i class="fas fa-plus mr-1"></i> 添加记录
+                    </button>
+                </div>
+            </div>
+            <div class="glass-card rounded-3xl p-5 mb-4">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-pink-500 text-lg">📋</span>
+                    <h3 class="font-bold text-gray-800">历史记录</h3>
+                </div>
+                <div id="periodHistory" class="space-y-2">
+                    <div class="text-sm text-gray-500 text-center py-4">暂无记录</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-preferences" class="page">
+            <div class="glass-card rounded-3xl p-5 mb-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-orange-500 text-lg">🍜</span>
+                        <h3 class="font-bold text-gray-800">喜欢的食物</h3>
+                    </div>
+                    <button onclick="openAddPreferenceModal('food', 'like')" class="w-8 h-8 rounded-full bg-pink-50 text-pink-500 hover:bg-pink-100 transition flex items-center justify-center">
+                        <i class="fas fa-plus text-xs"></i>
+                    </button>
+                </div>
+                <div id="likedFoods" class="flex flex-wrap gap-2">
+                    <span class="text-sm text-gray-400 py-2">还没有记录哦</span>
+                </div>
+            </div>
+            <div class="glass-card rounded-3xl p-5 mb-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-red-400 text-lg">🚫</span>
+                        <h3 class="font-bold text-gray-800">忌口/不喜欢</h3>
+                    </div>
+                    <button onclick="openAddPreferenceModal('food', 'dislike')" class="w-8 h-8 rounded-full bg-pink-50 text-pink-500 hover:bg-pink-100 transition flex items-center justify-center">
+                        <i class="fas fa-plus text-xs"></i>
+                    </button>
+                </div>
+                <div id="dislikedFoods" class="flex flex-wrap gap-2">
+                    <span class="text-sm text-gray-400 py-2">还没有记录哦</span>
+                </div>
+            </div>
+            <div class="glass-card rounded-3xl p-5 mb-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-purple-500 text-lg">🎨</span>
+                        <h3 class="font-bold text-gray-800">喜欢的颜色</h3>
+                    </div>
+                    <button onclick="openAddPreferenceModal('color', 'like')" class="w-8 h-8 rounded-full bg-pink-50 text-pink-500 hover:bg-pink-100 transition flex items-center justify-center">
+                        <i class="fas fa-plus text-xs"></i>
+                    </button>
+                </div>
+                <div id="likedColors" class="flex flex-wrap gap-2">
+                    <span class="text-sm text-gray-400 py-2">还没有记录哦</span>
+                </div>
+            </div>
+            <div class="glass-card rounded-3xl p-5 mb-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-blue-500 text-lg">🎮</span>
+                        <h3 class="font-bold text-gray-800">爱好</h3>
+                    </div>
+                    <button onclick="openAddPreferenceModal('hobby', 'like')" class="w-8 h-8 rounded-full bg-pink-50 text-pink-500 hover:bg-pink-100 transition flex items-center justify-center">
+                        <i class="fas fa-plus text-xs"></i>
+                    </button>
+                </div>
+                <div id="likedHobbies" class="flex flex-wrap gap-2">
+                    <span class="text-sm text-gray-400 py-2">还没有记录哦</span>
+                </div>
+            </div>
+            <div class="glass-card rounded-3xl p-5 mb-4">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-pink-500 text-lg">📏</span>
+                    <h3 class="font-bold text-gray-800">尺码备忘</h3>
+                    <span class="text-xs text-gray-400 ml-auto">(选填，谨慎保密)</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">衣服尺码</span>
+                        <input type="text" id="clothingSize" placeholder="如 M / L" 
+                            class="w-24 px-3 py-1.5 rounded-lg bg-pink-50 border border-pink-100 focus:outline-none focus:border-pink-300 text-sm text-center"
+                            onchange="saveSize('clothing', this.value)">
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">鞋码</span>
+                        <input type="text" id="shoeSize" placeholder="如 37" 
+                            class="w-24 px-3 py-1.5 rounded-lg bg-pink-50 border border-pink-100 focus:outline-none focus:border-pink-300 text-sm text-center"
+                            onchange="saveSize('shoe', this.value)">
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">戒指圈号</span>
+                        <input type="text" id="ringSize" placeholder="如 12" 
+                            class="w-24 px-3 py-1.5 rounded-lg bg-pink-50 border border-pink-100 focus:outline-none focus:border-pink-300 text-sm text-center"
+                            onchange="saveSize('ring', this.value)">
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card rounded-3xl p-5 mb-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-amber-500 text-lg">🎁</span>
+                        <h3 class="font-bold text-gray-800">愿望清单</h3>
+                    </div>
+                    <button onclick="openAddWishModal()" class="w-8 h-8 rounded-full bg-pink-50 text-pink-500 hover:bg-pink-100 transition flex items-center justify-center">
+                        <i class="fas fa-plus text-xs"></i>
+                    </button>
+                </div>
+                <div id="wishList" class="space-y-2">
+                    <div class="text-sm text-gray-400 py-2 text-center">还没有愿望哦</div>
+                </div>
+            </div>
+            <div class="glass-card rounded-3xl p-5 mb-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-teal-500 text-lg">📝</span>
+                        <h3 class="font-bold text-gray-800">其他备忘</h3>
+                    </div>
+                    <button onclick="openAddMemoModal()" class="w-8 h-8 rounded-full bg-pink-50 text-pink-500 hover:bg-pink-100 transition flex items-center justify-center">
+                        <i class="fas fa-plus text-xs"></i>
+                    </button>
+                </div>
+                <div id="memoList" class="space-y-2">
+                    <div class="text-sm text-gray-400 py-2 text-center">还没有备忘</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-anniversary" class="page">
+            <div class="glass-card rounded-3xl p-6 mb-4 text-center love-card">
+                <div class="text-4xl mb-3 heart-beat">❤️</div>
+                <div class="text-3xl font-bold text-pink-500 stat-number mb-1" id="anniversaryDays">0</div>
+                <div class="text-sm text-gray-500">我们已经在一起</div>
+                <div class="mt-3 text-xs text-gray-400" id="anniversaryDate"></div>
+                <button onclick="openSetAnniversaryModal()" class="mt-3 text-xs text-pink-400 hover:text-pink-600 underline">设置在一起日期</button>
+            </div>
+            <div class="glass-card rounded-3xl p-5 mb-4">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-pink-500 text-lg">➕</span>
+                    <h3 class="font-bold text-gray-800">添加纪念日</h3>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">名称</label>
+                        <input type="text" id="anniName" placeholder="如：生日、第一次约会" 
+                            class="w-full px-4 py-2.5 rounded-xl bg-pink-50 border border-pink-100 focus:outline-none focus:border-pink-300 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">日期</label>
+                        <input type="date" id="anniDate" 
+                            class="w-full px-4 py-2.5 rounded-xl bg-pink-50 border border-pink-100 focus:outline-none focus:border-pink-300 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">重复方式</label>
+                        <select id="anniRepeat" class="w-full px-4 py-2.5 rounded-xl bg-pink-50 border border-pink-100 focus:outline-none focus:border-pink-300 text-sm">
+                            <option value="yearly">每年重复</option>
+                            <option value="monthly">每月重复</option>
+                            <option value="once">仅一次</option>
+                        </select>
+                    </div>
+                    <button onclick="addAnniversary()" class="btn-primary w-full py-3 rounded-xl text-white font-bold text-sm">
+                        <i class="fas fa-heart mr-1"></i> 添加纪念日
+                    </button>
+                </div>
+            </div>
+            <div class="glass-card rounded-3xl p-5 mb-4">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-amber-500 text-lg">📅</span>
+                    <h3 class="font-bold text-gray-800">纪念日列表</h3>
+                </div>
+                <div id="anniversaryList" class="space-y-3">
+                    <div class="text-sm text-gray-500 text-center py-4">还没有纪念日</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-notes" class="page">
+            <div class="glass-card rounded-3xl p-5 mb-4">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-pink-500 text-lg">✏️</span>
+                    <h3 class="font-bold text-gray-800">写留言</h3>
+                </div>
+                <div class="space-y-3">
+                    <textarea id="noteContent" rows="3" placeholder="写下你想对她说的话..." 
+                        class="w-full px-4 py-3 rounded-xl bg-pink-50 border border-pink-100 focus:outline-none focus:border-pink-300 text-sm resize-none"></textarea>
+                    <div class="flex items-center justify-between">
+                        <div class="flex gap-2">
+                            <button onclick="insertEmoji('❤️')" class="text-lg hover:scale-125 transition">❤️</button>
+                            <button onclick="insertEmoji('🌹')" class="text-lg hover:scale-125 transition">🌹</button>
+                            <button onclick="insertEmoji('🌙')" class="text-lg hover:scale-125 transition">🌙</button>
+                            <button onclick="insertEmoji('✨')" class="text-lg hover:scale-125 transition">✨</button>
+                            <button onclick="insertEmoji('💋')" class="text-lg hover:scale-125 transition">💋</button>
+                            <button onclick="insertEmoji('🌸')" class="text-lg hover:scale-125 transition">🌸</button>
+                        </div>
+                        <button onclick="addNote()" class="btn-primary px-6 py-2.5 rounded-xl text-white font-bold text-sm">
+                            <i class="fas fa-paper-plane mr-1"></i> 发送
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="flex items-center gap-2 mb-4 px-1">
+                    <span class="text-pink-500 text-lg">💌</span>
+                    <h3 class="font-bold text-gray-800">留言历史</h3>
+                </div>
+                <div id="notesList" class="space-y-4">
+                    <div class="text-sm text-gray-500 text-center py-8">还没有留言，写下第一句吧~</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 z-50 glass-card border-t border-pink-100/50 px-2 py-2">
+        <div class="max-w-lg mx-auto flex justify-around items-center">
+            <button class="nav-item active flex flex-col items-center gap-0.5 py-1 px-3 text-gray-400 text-xs transition" data-tab="home" onclick="switchTab('home')">
+                <div class="nav-icon w-10 h-10 rounded-2xl flex items-center justify-center text-lg bg-pink-50">🏠</div>
+                <span>首页</span>
+            </button>
+            <button class="nav-item flex flex-col items-center gap-0.5 py-1 px-3 text-gray-400 text-xs transition" data-tab="period" onclick="switchTab('period')">
+                <div class="nav-icon w-10 h-10 rounded-2xl flex items-center justify-center text-lg bg-pink-50">🌙</div>
+                <span>经期</span>
+            </button>
+            <button class="nav-item flex flex-col items-center gap-0.5 py-1 px-3 text-gray-400 text-xs transition" data-tab="preferences" onclick="switchTab('preferences')">
+                <div class="nav-icon w-10 h-10 rounded-2xl flex items-center justify-center text-lg bg-pink-50">💝</div>
+                <span>喜好</span>
+            </button>
+            <button class="nav-item flex flex-col items-center gap-0.5 py-1 px-3 text-gray-400 text-xs transition" data-tab="anniversary" onclick="switchTab('anniversary')">
+                <div class="nav-icon w-10 h-10 rounded-2xl flex items-center justify-center text-lg bg-pink-50">🎂</div>
+                <span>纪念日</span>
+            </button>
+            <button class="nav-item flex flex-col items-center gap-0.5 py-1 px-3 text-gray-400 text-xs transition" data-tab="notes" onclick="switchTab('notes')">
+                <div class="nav-icon w-10 h-10 rounded-2xl flex items-center justify-center text-lg bg-pink-50">💌</div>
+                <span>留言</span>
+            </button>
+        </div>
+    </nav>
+
+    <div id="prefModal" class="modal-overlay fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
+        <div class="glass-card rounded-3xl p-6 w-full max-w-sm">
+            <h3 class="font-bold text-gray-800 mb-4" id="prefModalTitle">添加</h3>
+            <input type="text" id="prefModalInput" placeholder="输入内容..." class="w-full px-4 py-3 rounded-xl bg-pink-50 border border-pink-100 focus:outline-none focus:border-pink-300 text-sm mb-4">
+            <div class="flex gap-3">
+                <button onclick="closePrefModal()" class="flex-1 py-2.5 rounded-xl bg-gray-100 text-gray-600 font-medium text-sm">取消</button>
+                <button onclick="confirmAddPreference()" class="flex-1 py-2.5 rounded-xl btn-primary text-white font-medium text-sm">添加</button>
+            </div>
+        </div>
+    </div>
+    <div id="wishModal" class="modal-overlay fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
+        <div class="glass-card rounded-3xl p-6 w-full max-w-sm">
+            <h3 class="font-bold text-gray-800 mb-4">添加愿望</h3>
+            <input type="text" id="wishModalInput" placeholder="她想要什么..." class="w-full px-4 py-3 rounded-xl bg-pink-50 border border-pink-100 focus:outline-none focus:border-pink-300 text-sm mb-3">
+            <div class="flex items-center gap-2 mb-4">
+                <input type="checkbox" id="wishCompleted" class="w-4 h-4 rounded accent-pink-400">
+                <label for="wishCompleted" class="text-sm text-gray-600">已实现</label>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeWishModal()" class="flex-1 py-2.5 rounded-xl bg-gray-100 text-gray-600 font-medium text-sm">取消</button>
+                <button onclick="confirmAddWish()" class="flex-1 py-2.5 rounded-xl btn-primary text-white font-medium text-sm">添加</button>
+            </div>
+        </div>
+    </div>
+    <div id="memoModal" class="modal-overlay fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
+        <div class="glass-card rounded-3xl p-6 w-full max-w-sm">
+            <h3 class="font-bold text-gray-800 mb-4">添加备忘</h3>
+            <textarea id="memoModalInput" rows="2" placeholder="记录一些重要的事..." class="w-full px-4 py-3 rounded-xl bg-pink-50 border border-pink-100 focus:outline-none focus:border-pink-300 text-sm mb-4 resize-none"></textarea>
+            <div class="flex gap-3">
+                <button onclick="closeMemoModal()" class="flex-1 py-2.5 rounded-xl bg-gray-100 text-gray-600 font-medium text-sm">取消</button>
+                <button onclick="confirmAddMemo()" class="flex-1 py-2.5 rounded-xl btn-primary text-white font-medium text-sm">添加</button>
+            </div>
+        </div>
+    </div>
+    <div id="setAnniModal" class="modal-overlay fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
+        <div class="glass-card rounded-3xl p-6 w-full max-w-sm">
+            <h3 class="font-bold text-gray-800 mb-4">设置在一起日期</h3>
+            <input type="date" id="setAnniDateInput" class="w-full px-4 py-3 rounded-xl bg-pink-50 border border-pink-100 focus:outline-none focus:border-pink-300 text-sm mb-4">
+            <div class="flex gap-3">
+                <button onclick="closeSetAnniModal()" class="flex-1 py-2.5 rounded-xl bg-gray-100 text-gray-600 font-medium text-sm">取消</button>
+                <button onclick="confirmSetAnniversary()" class="flex-1 py-2.5 rounded-xl btn-primary text-white font-medium text-sm">设置</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DB = {
+            get(key, defaultVal) {
+                try { const v = localStorage.getItem('gf_' + key); return v ? JSON.parse(v) : defaultVal; }
+                catch { return defaultVal; }
+            },
+            set(key, val) { localStorage.setItem('gf_' + key, JSON.stringify(val)); }
+        };
+
+        let data = {
+            periodRecords: DB.get('periodRecords', []),
+            preferences: DB.get('preferences', { likedFoods: [], dislikedFoods: [], likedColors: [], likedHobbies: [] }),
+            sizes: DB.get('sizes', {}),
+            wishes: DB.get('wishes', []),
+            memos: DB.get('memos', []),
+            anniversaries: DB.get('anniversaries', []),
+            togetherDate: DB.get('togetherDate', null),
+            notes: DB.get('notes', [])
+        };
+
+        const loveQuotes = [
+            "你是我生命中最美好的意外",
+            "遇见你，是我这辈子最幸运的事",
+            "每一天醒来，第一个想到的就是你",
+            "世界很大，但我的眼里只有你",
+            "你是我温暖的春天，也是我安静的港湾",
+            "遇见你之后，我才明白什么叫心动",
+            "喜欢你，是藏不住的",
+            "想和你一起，把平凡的日子过成诗",
+            "你笑起来的样子，是我最喜欢的风景",
+            "不管多远，我都会陪在你身边",
+            "你是我平淡生活里的，一点点甜",
+            "想陪你看日出日落，走过春夏秋冬"
+        ];
+
+        function formatDate(d) {
+            const date = new Date(d);
+            return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+        }
+        function daysBetween(a, b) {
+            const da = new Date(a); da.setHours(0,0,0,0);
+            const db = new Date(b); db.setHours(0,0,0,0);
+            return Math.round((db - da) / (1000*60*60*24));
+        }
+        function addDays(date, days) { const d = new Date(date); d.setDate(d.getDate()+days); return d; }
+        function todayStr() { return formatDate(new Date()); }
+
+        function initParticles() {
+            const container = document.getElementById('particles');
+            const symbols = ['❤️', '✨', '🌸', '💕', '🌹', '🌙'];
+            for (let i = 0; i < 12; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                p.style.left = Math.random() * 100 + '%';
+                p.style.fontSize = (12 + Math.random() * 16) + 'px';
+                p.style.animationDuration = (10 + Math.random() * 15) + 's';
+                p.style.animationDelay = Math.random() * 10 + 's';
+                container.appendChild(p);
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + tab).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelector(`.nav-item[data-tab="${tab}"]`).classList.add('active');
+            if (tab === 'period') renderCalendar();
+            if (tab === 'home') renderHome();
+            if (tab === 'preferences') renderPreferences();
+            if (tab === 'anniversary') renderAnniversaries();
+            if (tab === 'notes') renderNotes();
+        }
+
+        function renderHome() {
+            document.getElementById('headerDate').textContent = new Date().toLocaleDateString('zh-CN', { month:'long', day:'numeric', weekday:'long' });
+            document.getElementById('dailyQuote').textContent = '✨ ' + loveQuotes[Math.floor(Math.random() * loveQuotes.length)];
+            if (data.togetherDate) {
+                const days = daysBetween(data.togetherDate, new Date());
+                document.getElementById('daysTogether').textContent = days;
+                document.getElementById('anniversaryDays').textContent = days;
+                document.getElementById('anniversaryDate').textContent = '从 ' + data.togetherDate + ' 开始';
+            } else {
+                document.getElementById('daysTogether').textContent = '?';
+                document.getElementById('anniversaryDays').textContent = '?';
+            }
+            renderPeriodOverview();
+            renderAnniversaryOverview();
+        }
+
+        function renderPeriodOverview() {
+            const el = document.getElementById('periodOverview');
+            if (data.periodRecords.length === 0) {
+                el.innerHTML = '<div class="text-sm text-gray-500 text-center py-4">暂无记录，去"经期"页面添加吧~</div>'; return;
+            }
+            const recs = [...data.periodRecords].sort((a,b) => new Date(b.start) - new Date(a.start));
+            const last = recs[0]; const lastStart = new Date(last.start);
+            const today = new Date(); today.setHours(0,0,0,0);
+            const daysSinceLast = Math.floor((today - lastStart) / (1000*60*60*24));
+            let statusHtml = '';
+            if (daysSinceLast >= 0 && daysSinceLast < last.duration) {
+                statusHtml = `<div class="bg-pink-100 rounded-xl p-3 flex items-center gap-3">
+                    <div class="text-2xl">🌸</div><div><div class="font-bold text-pink-600">经期第 ${daysSinceLast+1} 天</div>
+                    <div class="text-xs text-pink-400">预计还有 ${last.duration - daysSinceLast - 1} 天结束</div></div></div>`;
+            } else {
+                const avgCycle = calcAvgCycle();
+                if (avgCycle > 0) {
+                    const nextStart = addDays(last.start, avgCycle);
+                    const daysToNext = Math.ceil((nextStart - today) / (1000*60*60*24));
+                    if (daysToNext > 0) statusHtml = `<div class="bg-amber-50 rounded-xl p-3 flex items-center gap-3">
+                        <div class="text-2xl">🌙</div><div><div class="font-bold text-amber-600">距离下次经期还有 ${daysToNext} 天</div>
+                        <div class="text-xs text-amber-400">预计 ${formatDate(nextStart)}</div></div></div>`;
+                    else if (daysToNext >= -3) statusHtml = `<div class="bg-pink-100 rounded-xl p-3 flex items-center gap-3">
+                        <div class="text-2xl">⚠️</div><div><div class="font-bold text-pink-600">经期可能即将开始</div>
+                        <div class="text-xs text-pink-400">记得准备暖宝宝哦</div></div></div>`;
+                    else statusHtml = `<div class="bg-gray-50 rounded-xl p-3 flex items-center gap-3">
+                        <div class="text-2xl">📅</div><div><div class="font-bold text-gray-600">经期已延迟 ${Math.abs(daysToNext)} 天</div>
+                        <div class="text-xs text-gray-400">周期可能有所变化</div></div></div>`;
+                }
+            }
+            el.innerHTML = statusHtml || '<div class="text-sm text-gray-500 text-center py-4">记录更多数据以获得准确预测</div>';
+        }
+
+        function renderAnniversaryOverview() {
+            const el = document.getElementById('anniversaryOverview');
+            const upcoming = getUpcomingAnniversaries(3);
+            if (upcoming.length === 0) { el.innerHTML = '<div class="text-sm text-gray-500 text-center py-4">还没有纪念日哦</div>'; return; }
+            el.innerHTML = upcoming.map(a => {
+                const badgeColor = a.daysUntil <= 7 ? 'bg-pink-100 text-pink-600' : 'bg-amber-50 text-amber-600';
+                return `<div class="flex items-center justify-between p-3 rounded-xl ${badgeColor}">
+                    <div class="flex items-center gap-2"><span>${a.icon || '🎂'}</span><span class="font-medium text-sm">${a.name}</span></div>
+                    <span class="text-xs font-bold">${a.daysUntil === 0 ? '今天!' : a.daysUntil + '天后'}</span></div>`;
+            }).join('');
+        }
+
+        let currentCalendarDate = new Date();
+        function renderCalendar() {
+            const year = currentCalendarDate.getFullYear(), month = currentCalendarDate.getMonth();
+            document.getElementById('calendarTitle').textContent = `${year}年${month+1}月`;
+            const firstDay = new Date(year, month, 1), lastDay = new Date(year, month+1, 0);
+            const startPadding = firstDay.getDay(), totalDays = lastDay.getDate();
+            const grid = document.getElementById('calendarGrid'); grid.innerHTML = '';
+            for (let i = 0; i < startPadding; i++) grid.innerHTML += '<div></div>';
+            const today = new Date(); today.setHours(0,0,0,0);
+            for (let d = 1; d <= totalDays; d++) {
+                const cellDate = new Date(year, month, d); cellDate.setHours(0,0,0,0);
+                const cellDateStr = formatDate(cellDate);
+                let cls = 'calendar-day h-10 rounded-xl flex items-center justify-center text-sm font-medium relative';
+                let isPeriod = false, isPredicted = false, isOvulation = false, isFertile = false;
+                for (const rec of data.periodRecords) {
+                    const start = new Date(rec.start); start.setHours(0,0,0,0);
+                    for (let i = 0; i < rec.duration; i++) if (formatDate(addDays(start, i)) === cellDateStr) { isPeriod = true; break; }
+                }
+                if (!isPeriod) {
+                    const avgCycle = calcAvgCycle(), avgDuration = calcAvgDuration();
+                    if (avgCycle > 0 && data.periodRecords.length > 0) {
+                        const recs = [...data.periodRecords].sort((a,b) => new Date(a.start) - new Date(b.start));
+                        for (let r = 0; r < recs.length; r++) {
+                            const start = new Date(recs[r].start);
+                            for (let f = 1; f <= 6; f++) {
+                                const predStart = addDays(start, avgCycle * f), predEnd = addDays(predStart, avgDuration - 1);
+                                if (cellDate >= predStart && cellDate <= predEnd && cellDate >= today) { isPredicted = true; break; }
+                                const ovuDay = addDays(predStart, -14);
+                                if (formatDate(cellDate) === formatDate(ovuDay)) { isOvulation = true; break; }
+                                const fs = addDays(ovuDay, -5), fe = addDays(ovuDay, 4);
+                                if (cellDate >= fs && cellDate <= fe && cellDate >= today) isFertile = true;
+                            }
+                            if (isPredicted || isOvulation) break;
+                        }
+                    }
+                }
+                if (isPeriod) cls += ' period'; else if (isOvulation) cls += ' ovulation'; else if (isPredicted) cls += ' predicted'; else if (isFertile) cls += ' fertile'; else if (cellDate.getTime() === today.getTime()) cls += ' today bg-white text-pink-500'; else cls += ' bg-white/60 text-gray-700 hover:bg-white';
+                grid.innerHTML += `<div class="${cls}" data-date="${cellDateStr}">${d}</div>`;
+            }
+            grid.querySelectorAll('.calendar-day').forEach(el => {
+                el.addEventListener('click', function() {
+                    const date = this.dataset.date; if (!date) return;
+                    if (confirm('是否标记 ' + date + ' 为经期开始？')) addPeriodRecordDate(date);
+                });
+            });
+            renderPeriodStats(); renderPeriodHistory();
+        }
+
+        function changeMonth(delta) { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta); renderCalendar(); }
+        function calcAvgCycle() {
+            const recs = [...data.periodRecords].sort((a,b) => new Date(a.start) - new Date(b.start));
+            if (recs.length < 2) return 0; let total = 0, count = 0;
+            for (let i = 1; i < recs.length; i++) { const d = daysBetween(recs[i-1].start, recs[i].start); if (d > 10 && d < 60) { total += d; count++; } }
+            return count > 0 ? Math.round(total / count) : 28;
+        }
+        function calcAvgDuration() { if (data.periodRecords.length === 0) return 5; let total = 0; for (const r of data.periodRecords) total += r.duration; return Math.round(total / data.periodRecords.length); }
+        function renderPeriodStats() {
+            const avgCycle = calcAvgCycle(), avgDuration = calcAvgDuration();
+            document.getElementById('avgCycle').textContent = avgCycle || '-';
+            document.getElementById('avgDuration').textContent = avgDuration || '-';
+            const recs = [...data.periodRecords].sort((a,b) => new Date(b.start) - new Date(a.start));
+            if (recs.length >= 2 && avgCycle > 0) {
+                const next = addDays(recs[0].start, avgCycle), today = new Date(); today.setHours(0,0,0,0);
+                const daysLeft = Math.ceil((next - today) / (1000*60*60*24));
+                document.getElementById('periodPrediction').innerHTML = `<i class="fas fa-lightbulb mr-1"></i> 下次经期预计 ${formatDate(next)}（${daysLeft > 0 ? '还有 ' + daysLeft + ' 天' : '可能已延迟'}）`;
+            } else document.getElementById('periodPrediction').innerHTML = `<i class="fas fa-lightbulb mr-1"></i> 记录至少两次经期后，可以开始预测周期`;
+        }
+        function addPeriodRecord() { const start = document.getElementById('periodStartDate').value, duration = parseInt(document.getElementById('periodDurationSlider').value); if (!start) { alert('请选择日期'); return; } addPeriodRecordDate(start, duration); }
+        function addPeriodRecordDate(start, duration) {
+            duration = duration || parseInt(document.getElementById('periodDurationSlider').value) || 5;
+            if (data.periodRecords.find(r => r.start === start)) { alert('该日期已有记录'); return; }
+            data.periodRecords.push({ start, duration, id: Date.now() }); DB.set('periodRecords', data.periodRecords); renderCalendar(); alert('记录已添加！');
+        }
+        function renderPeriodHistory() {
+            const el = document.getElementById('periodHistory'), recs = [...data.periodRecords].sort((a,b) => new Date(b.start) - new Date(a.start));
+            if (recs.length === 0) { el.innerHTML = '<div class="text-sm text-gray-500 text-center py-4">暂无记录</div>'; return; }
+            el.innerHTML = recs.map(r => { const end = addDays(r.start, r.duration - 1); return `<div class="flex items-center justify-between p-3 rounded-xl bg-pink-50/50">
+                <div><div class="font-medium text-sm text-gray-700">${r.start} ~ ${formatDate(end)}</div><div class="text-xs text-gray-400">共 ${r.duration} 天</div></div>
+                <button onclick="deletePeriodRecord(${r.id})" class="w-7 h-7 rounded-full bg-red-50 text-red-400 hover:bg-red-100 flex items-center justify-center text-xs"><i class="fas fa-trash"></i></button></div>`; }).join('');
+        }
+        function deletePeriodRecord(id) { if (!confirm('确定删除这条记录？')) return; data.periodRecords = data.periodRecords.filter(r => r.id !== id); DB.set('periodRecords', data.periodRecords); renderCalendar(); }
+
+        let currentPrefType = '', currentPrefSubtype = '';
+        function renderPreferences() {
+            renderPrefTags('likedFoods', data.preferences.likedFoods || [], 'bg-orange-100 text-orange-700', 'food', 'like');
+            renderPrefTags('dislikedFoods', data.preferences.dislikedFoods || [], 'bg-red-100 text-red-700', 'food', 'dislike');
+            renderPrefTags('likedColors', data.preferences.likedColors || [], 'bg-purple-100 text-purple-700', 'color', 'like');
+            renderPrefTags('likedHobbies', data.preferences.likedHobbies || [], 'bg-blue-100 text-blue-700', 'hobby', 'like');
+            document.getElementById('clothingSize').value = data.sizes.clothing || '';
+            document.getElementById('shoeSize').value = data.sizes.shoe || '';
+            document.getElementById('ringSize').value = data.sizes.ring || '';
+            renderWishes(); renderMemos();
+        }
+        function renderPrefTags(containerId, items, colorClass, type, subtype) {
+            const el = document.getElementById(containerId);
+            if (items.length === 0) { el.innerHTML = '<span class="text-sm text-gray-400 py-2">还没有记录哦</span>'; return; }
+            el.innerHTML = items.map((item, idx) => `<span class="preference-tag inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium ${colorClass}">${item}<button onclick="deletePreference('${type}', '${subtype}', ${idx})" class="hover:text-red-500 transition ml-0.5"><i class="fas fa-times"></i></button></span>`).join('');
+        }
+        function renderWishes() {
+            const el = document.getElementById('wishList');
+            if (data.wishes.length === 0) { el.innerHTML = '<div class="text-sm text-gray-400 py-2 text-center">还没有愿望哦</div>'; return; }
+            el.innerHTML = data.wishes.map((w, idx) => `<div class="wish-card rounded-xl p-3 flex items-center justify-between ${w.completed ? 'opacity-50' : ''}">
+                <div class="flex items-center gap-2"><div class="w-5 h-5 rounded-full border-2 ${w.completed ? 'border-green-400 bg-green-400' : 'border-pink-300'} flex items-center justify-center cursor-pointer" onclick="toggleWish(${idx})">${w.completed ? '<i class="fas fa-check text-white text-xs"></i>' : ''}</div>
+                <span class="text-sm ${w.completed ? 'line-through text-gray-400' : 'text-gray-700'}">${w.text}</span></div>
+                <button onclick="deleteWish(${idx})" class="text-gray-300 hover:text-red-400 transition"><i class="fas fa-trash text-xs"></i></button></div>`).join('');
+        }
+        function renderMemos() {
+            const el = document.getElementById('memoList');
+            if (data.memos.length === 0) { el.innerHTML = '<div class="text-sm text-gray-400 py-2 text-center">还没有备忘</div>'; return; }
+            el.innerHTML = data.memos.map((m, idx) => `<div class="bg-teal-50 rounded-xl p-3 flex items-start justify-between gap-2"><div class="text-sm text-gray-700 flex-1">${m.text}</div>
+                <button onclick="deleteMemo(${idx})" class="text-gray-300 hover:text-red-400 transition mt-0.5"><i class="fas fa-trash text-xs"></i></button></div>`).join('');
+        }
+        function openAddPreferenceModal(type, subtype) { currentPrefType = type; currentPrefSubtype = subtype; const titles = { food: '食物', color: '颜色', hobby: '爱好' }; const actions = { like: '喜欢', dislike: '不喜欢' }; document.getElementById('prefModalTitle').textContent = '添加' + actions[subtype] + '的' + titles[type]; document.getElementById('prefModalInput').value = ''; document.getElementById('prefModal').classList.remove('hidden'); document.getElementById('prefModalInput').focus(); }
+        function closePrefModal() { document.getElementById('prefModal').classList.add('hidden'); }
+        function confirmAddPreference() { const val = document.getElementById('prefModalInput').value.trim(); if (!val) return; const key = currentPrefSubtype === 'dislike' ? 'disliked' + capitalize(currentPrefType) + 's' : 'liked' + capitalize(currentPrefType) + 's'; if (!data.preferences[key]) data.preferences[key] = []; data.preferences[key].push(val); DB.set('preferences', data.preferences); closePrefModal(); renderPreferences(); }
+        function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+        function deletePreference(type, subtype, idx) { const key = subtype === 'dislike' ? 'disliked' + capitalize(type) + 's' : 'liked' + capitalize(type) + 's'; data.preferences[key].splice(idx, 1); DB.set('preferences', data.preferences); renderPreferences(); }
+        function saveSize(type, val) { data.sizes[type] = val; DB.set('sizes', data.sizes); }
+        function openAddWishModal() { document.getElementById('wishModal').classList.remove('hidden'); document.getElementById('wishModalInput').value = ''; document.getElementById('wishCompleted').checked = false; }
+        function closeWishModal() { document.getElementById('wishModal').classList.add('hidden'); }
+        function confirmAddWish() { const val = document.getElementById('wishModalInput').value.trim(); if (!val) return; data.wishes.push({ text: val, completed: document.getElementById('wishCompleted').checked }); DB.set('wishes', data.wishes); closeWishModal(); renderPreferences(); }
+        function toggleWish(idx) { data.wishes[idx].completed = !data.wishes[idx].completed; DB.set('wishes', data.wishes); renderPreferences(); }
+        function deleteWish(idx) { data.wishes.splice(idx, 1); DB.set('wishes', data.wishes); renderPreferences(); }
+        function openAddMemoModal() { document.getElementById('memoModal').classList.remove('hidden'); document.getElementById('memoModalInput').value = ''; }
+        function closeMemoModal() { document.getElementById('memoModal').classList.add('hidden'); }
+        function confirmAddMemo() { const val = document.getElementById('memoModalInput').value.trim(); if (!val) return; data.memos.push({ text: val }); DB.set('memos', data.memos); closeMemoModal(); renderPreferences(); }
+        function deleteMemo(idx) { data.memos.splice(idx, 1); DB.set('memos', data.memos); renderPreferences(); }
+
+        function getUpcomingAnniversaries(limit) {
+            const today = new Date(); today.setHours(0,0,0,0); const results = [];
+            for (const a of data.anniversaries) {
+                const d = new Date(a.date); const thisYear = new Date(today.getFullYear(), d.getMonth(), d.getDate());
+                if (thisYear < today) thisYear.setFullYear(thisYear.getFullYear()+1);
+                let daysUntil = Math.ceil((thisYear - today) / (1000*60*60*24));
+                if (a.repeat === 'monthly') { const thisMonth = new Date(today.getFullYear(), today.getMonth(), d.getDate()); if (thisMonth < today) thisMonth.setMonth(thisMonth.getMonth()+1); daysUntil = Math.ceil((thisMonth - today) / (1000*60*60*24)); }
+                results.push({ ...a, daysUntil, nextDate: formatDate(thisYear) });
+            }
+            if (data.togetherDate) { const d = new Date(data.togetherDate); const thisYear = new Date(today.getFullYear(), d.getMonth(), d.getDate()); if (thisYear < today) thisYear.setFullYear(thisYear.getFullYear()+1); const daysUntil = Math.ceil((thisYear - today) / (1000*60*60*24)); results.push({ name: '在一起纪念日', date: data.togetherDate, repeat: 'yearly', daysUntil, icon: '❤️', nextDate: formatDate(thisYear) }); }
+            return results.filter(a => a.daysUntil >= 0).sort((a,b) => a.daysUntil - b.daysUntil).slice(0, limit);
+        }
+        function renderAnniversaries() {
+            const list = document.getElementById('anniversaryList');
+            if (data.anniversaries.length === 0) { list.innerHTML = '<div class="text-sm text-gray-500 text-center py-4">还没有纪念日</div>'; return; }
+            const upcoming = getUpcomingAnniversaries(100);
+            list.innerHTML = upcoming.map(a => { const isSoon = a.daysUntil <= 7; return `<div class="countdown-card rounded-2xl p-4 border border-pink-100/50">
+                <div class="flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center text-lg">${a.icon || '🎂'}</div>
+                <div><div class="font-bold text-gray-800">${a.name}</div><div class="text-xs text-gray-400">${a.date}</div></div></div>
+                <div class="text-right"><div class="text-2xl font-bold ${isSoon ? 'text-pink-500' : 'text-amber-500'} stat-number">${a.daysUntil}</div><div class="text-xs text-gray-400">天后</div></div></div></div>`; }).join('');
+        }
+        function addAnniversary() { const name = document.getElementById('anniName').value.trim(), date = document.getElementById('anniDate').value, repeat = document.getElementById('anniRepeat').value; if (!name || !date) { alert('请填写完整'); return; } data.anniversaries.push({ name, date, repeat, id: Date.now() }); DB.set('anniversaries', data.anniversaries); document.getElementById('anniName').value = ''; document.getElementById('anniDate').value = ''; renderAnniversaries(); }
+        function openSetAnniversaryModal() { document.getElementById('setAnniModal').classList.remove('hidden'); }
+        function closeSetAnniModal() { document.getElementById('setAnniModal').classList.add('hidden'); }
+        function confirmSetAnniversary() { const date = document.getElementById('setAnniDateInput').value; if (!date) { alert('请选择日期'); return; } data.togetherDate = date; DB.set('togetherDate', date); closeSetAnniModal(); renderHome(); renderAnniversaries(); }
+
+        function renderNotes() {
+            const el = document.getElementById('notesList');
+            if (data.notes.length === 0) { el.innerHTML = '<div class="text-sm text-gray-500 text-center py-8">还没有留言，写下第一句吧~</div>'; return; }
+            const reversed = [...data.notes].reverse();
+            el.innerHTML = reversed.map((n, idx) => `<div class="note-bubble rounded-2xl p-4 mb-2"><div class="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">${escapeHtml(n.text)}</div>
+                <div class="text-xs text-gray-400 mt-2 flex items-center justify-between"><span><i class="far fa-clock mr-1"></i>${n.time}</span>
+                <button onclick="deleteNote(${data.notes.length - 1 - idx})" class="text-gray-300 hover:text-red-400 transition"><i class="fas fa-trash text-xs"></i></button></div></div>`).join('');
+        }
+        function addNote() { const text = document.getElementById('noteContent').value.trim(); if (!text) { alert('请输入内容'); return; } data.notes.push({ text, time: new Date().toLocaleString('zh-CN') }); DB.set('notes', data.notes); document.getElementById('noteContent').value = ''; renderNotes(); }
+        function insertEmoji(emoji) { const ta = document.getElementById('noteContent'); ta.value += emoji; ta.focus(); }
+        function deleteNote(idx) { if (!confirm('确定删除这条留言？')) return; data.notes.splice(idx, 1); DB.set('notes', data.notes); renderNotes(); }
+        function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initParticles(); renderHome();
+            document.getElementById('periodStartDate').value = todayStr();
+            document.getElementById('anniDate').value = todayStr();
+            document.getElementById('noteContent').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addNote(); } });
+            document.getElementById('prefModalInput').addEventListener('keydown', e => { if (e.key === 'Enter') confirmAddPreference(); });
+            document.getElementById('wishModalInput').addEventListener('keydown', e => { if (e.key === 'Enter') confirmAddWish(); });
+            document.getElementById('memoModalInput').addEventListener('keydown', e => { if (e.key === 'Enter') confirmAddMemo(); });
+            document.querySelectorAll('.modal-overlay').forEach(m => { m.addEventListener('click', e => { if (e.target === m) m.classList.add('hidden'); }); });
+        });
+    </script>
+</body>
+</html>
