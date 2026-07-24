@@ -232,6 +232,84 @@
         .wish-card:nth-child(even):hover {
             transform: translateY(-3px) rotate(-1deg);
         }
+
+        /* ========== 专属厨房 ========== */
+        .kitchen-page { display: flex; height: calc(100vh - 148px); }
+        .kitchen-sidebar {
+            width: 86px; flex-shrink: 0; overflow-y: auto;
+            background: rgba(255,255,255,0.55);
+            border-right: 1px solid rgba(251,113,133,0.1);
+            padding-bottom: 60px;
+        }
+        .kitchen-cat {
+            padding: 14px 6px; text-align: center; font-size: 0.7rem;
+            color: #666; cursor: pointer; transition: all 0.2s;
+            border-left: 3px solid transparent; line-height: 1.3;
+        }
+        .kitchen-cat.active {
+            background: rgba(251,113,133,0.1); color: #fb7185;
+            border-left-color: #fb7185; font-weight: 600;
+        }
+        .kitchen-main {
+            flex: 1; overflow-y: auto; padding: 12px; padding-bottom: 80px;
+        }
+        .kitchen-item {
+            display: flex; gap: 10px; padding: 10px;
+            background: rgba(255,255,255,0.75);
+            border-radius: 16px; margin-bottom: 10px;
+            align-items: center; backdrop-filter: blur(8px);
+        }
+        .kitchen-item-icon {
+            width: 56px; height: 56px; border-radius: 14px;
+            background: linear-gradient(135deg, #fff0f5, #ffe4e6);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; flex-shrink: 0;
+        }
+        .kitchen-item-info { flex: 1; min-width: 0; }
+        .kitchen-item-name { font-weight: 600; font-size: 0.9rem; color: #333; margin-bottom: 2px; }
+        .kitchen-item-desc { font-size: 0.7rem; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .kitchen-item-stars { color: #fbbf24; font-size: 0.7rem; margin: 2px 0; }
+        .kitchen-item-price { color: #22c55e; font-weight: 700; font-size: 0.85rem; }
+        .kitchen-item-add {
+            width: 28px; height: 28px; border-radius: 50%; background: #22c55e;
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; cursor: pointer; flex-shrink: 0; transition: transform 0.2s;
+        }
+        .kitchen-item-add:active { transform: scale(0.9); }
+        .kitchen-cart-bar {
+            position: fixed; bottom: 74px; left: 12px; right: 12px; z-index: 40;
+            background: linear-gradient(135deg, #fb7185, #f472b6);
+            border-radius: 24px; padding: 10px 16px;
+            display: none; align-items: center; justify-content: space-between;
+            color: white; box-shadow: 0 8px 24px rgba(251,113,133,0.3); cursor: pointer;
+        }
+        .kitchen-cart-bar.show { display: flex; }
+        .kitchen-cart-modal {
+            position: fixed; inset: 0; z-index: 70;
+            background: rgba(0,0,0,0.4); display: none;
+            align-items: flex-end; justify-content: center;
+        }
+        .kitchen-cart-modal.show { display: flex; }
+        .kitchen-cart-content {
+            background: white; border-radius: 24px 24px 0 0;
+            width: 100%; max-width: 520px; max-height: 70vh;
+            overflow-y: auto; padding: 20px;
+        }
+        .kitchen-order-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 0; border-bottom: 1px solid #f3f4f6;
+        }
+        .kitchen-qty-btn {
+            width: 24px; height: 24px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; cursor: pointer;
+            background: #f3f4f6; color: #666;
+        }
+        .kitchen-order-card {
+            background: rgba(255,255,255,0.8); border-radius: 16px;
+            padding: 12px; margin-bottom: 10px;
+            border: 1px solid rgba(251,113,133,0.1);
+        }
     </style>
 </head>
 <body class="text-gray-700 pb-24">
@@ -684,6 +762,21 @@
                 </div>
             </div>
         </section>
+
+        <!-- ========== 专属厨房 ========== -->
+        <section id="page-kitchen" class="page">
+            <div class="kitchen-page">
+                <div class="kitchen-sidebar" id="kitchenSidebar"></div>
+                <div class="kitchen-main" id="kitchenMain"></div>
+            </div>
+            <div class="kitchen-cart-bar" id="kitchenCartBar" onclick="openKitchenCart()">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🛒</span>
+                    <span class="font-bold" id="kitchenCartCount">0</span>
+                </div>
+                <div class="font-bold" id="kitchenCartTotal">🥬 0</div>
+            </div>
+        </section>
     </main>
 
     <!-- 底部导航 -->
@@ -712,6 +805,12 @@
                     🎂
                 </div>
                 <span>纪念日</span>
+            </button>
+            <button class="nav-item flex flex-col items-center gap-0.5 py-1 px-3 text-gray-400 text-xs transition" data-tab="kitchen" onclick="switchTab('kitchen')">
+                <div class="nav-icon w-10 h-10 rounded-2xl flex items-center justify-center text-lg bg-pink-50">
+                    🍳
+                </div>
+                <span>厨房</span>
             </button>
             <button class="nav-item flex flex-col items-center gap-0.5 py-1 px-3 text-gray-400 text-xs transition" data-tab="notes" onclick="switchTab('notes')">
                 <div class="nav-icon w-10 h-10 rounded-2xl flex items-center justify-center text-lg bg-pink-50">
@@ -862,6 +961,7 @@
             if (tab === 'preferences') renderPreferences();
             if (tab === 'anniversary') renderAnniversaries();
             if (tab === 'notes') renderNotes();
+            if (tab === 'kitchen') renderKitchen();
         }
 
         // ==================== 首页 ====================
@@ -1480,6 +1580,227 @@
             alert('所有数据已清空');
         }
 
+
+        // ==================== 专属厨房 ====================
+        const kitchenCategories = [
+            { id: 'tips', name: '温馨提示', icon: '😊' },
+            { id: 'wishes', name: '宝宝想要', icon: '💖' },
+            { id: 'money', name: '钞能力', icon: '💰' },
+            { id: 'cook', name: '炒能力', icon: '🍳' }
+        ];
+        const defaultMenuItems = [
+            { id: 1, category: 'tips', name: '这里是宝宝的专属菜单', desc: '宝宝我爱你，你是唯一', price: 0, icon: '🐻', rating: 5 },
+            { id: 2, category: 'tips', name: '宝宝少生气', desc: '如果宝宝生气了也不能拉黑或者冷战', price: 0, icon: '🐻', rating: 5 },
+            { id: 3, category: 'tips', name: '客服后厨', desc: '投诉与建议，如有做的不好的地方请告诉我', price: 0, icon: '🐻', rating: 5 },
+            { id: 4, category: 'tips', name: '日后不定期更新', desc: '敬请期待更多专属服务', price: 0, icon: '🐻', rating: 5 },
+            { id: 11, category: 'wishes', name: '想和宝宝打通话', desc: '滴滴滴滴滴，随时待命', price: 25, icon: '📱', rating: 5 },
+            { id: 12, category: 'wishes', name: '犯错免责', desc: '犯错之后不道歉、不低头，主人自动原谅', price: 30, icon: '🙈', rating: 5 },
+            { id: 13, category: 'wishes', name: '陪玩蛋仔派对', desc: '陪宝宝打游戏，咔哒咔哒！搞快点！', price: 30, icon: '🎮', rating: 5 },
+            { id: 14, category: 'wishes', name: '攻击主人', desc: '可惩罚主人，主人乖乖受罚', price: 35, icon: '👊', rating: 4 },
+            { id: 15, category: 'wishes', name: '马杀鸡', desc: '按摩师01号已就位，让宝宝放松', price: 40, icon: '💆', rating: 5 },
+            { id: 16, category: 'wishes', name: '法法', desc: '非常非常舒服！享受专属服务', price: 50, icon: '✨', rating: 5 },
+            { id: 21, category: 'money', name: '冰淇淋兑换券', desc: '宝宝喜欢冰淇淋，随时兑换', price: 66, icon: '🍦', rating: 5 },
+            { id: 22, category: 'money', name: '宝宝要喝奶茶', desc: '嘻嘻，宝宝想喝什么口味？', price: 80, icon: '🧋', rating: 5 },
+            { id: 23, category: 'money', name: '宝宝要吃小蛋糕', desc: '美味的蛋糕，宝宝的最爱', price: 100, icon: '🍰', rating: 5 },
+            { id: 31, category: 'cook', name: '爱心早餐', desc: '早起为宝宝做一顿温暖的早餐', price: 10, icon: '🍳', rating: 5 },
+            { id: 32, category: 'cook', name: '深夜泡面', desc: '半夜饿了？马上安排', price: 15, icon: '🍜', rating: 4 },
+            { id: 33, category: 'cook', name: '手工甜品', desc: '亲手做的甜品，甜到心里', price: 20, icon: '🍮', rating: 5 }
+        ];
+        let kitchenCurrentCat = 'tips';
+        let kitchenCart = [];
+        let kitchenOrders = [];
+
+        function getMenuItems() {
+            const saved = DB.get('menuItems', null);
+            if (saved && saved.length) return saved;
+            return defaultMenuItems;
+        }
+
+        function renderKitchen() {
+            renderKitchenSidebar();
+            renderKitchenItems();
+            updateKitchenCartBar();
+        }
+
+        function renderKitchenSidebar() {
+            const el = document.getElementById('kitchenSidebar');
+            el.innerHTML = kitchenCategories.map(c => {
+                const count = getMenuItems().filter(i => i.category === c.id).length;
+                return `<div class="kitchen-cat ${c.id === kitchenCurrentCat ? 'active' : ''}" onclick="switchKitchenCat('${c.id}')">
+                    <div class="text-lg mb-1">${c.icon}</div>
+                    <div>${c.name}</div>
+                    <div class="text-xs text-gray-400 mt-0.5">(${count})</div>
+                </div>`;
+            }).join('');
+        }
+
+        function switchKitchenCat(cat) {
+            kitchenCurrentCat = cat;
+            renderKitchenSidebar();
+            renderKitchenItems();
+        }
+
+        function renderKitchenItems() {
+            const el = document.getElementById('kitchenMain');
+            const items = getMenuItems().filter(i => i.category === kitchenCurrentCat);
+            if (items.length === 0) {
+                el.innerHTML = `<div class="text-center py-12 text-gray-400">
+                    <div class="text-4xl mb-2">🍳</div>
+                    <div class="text-sm">这里空空如也...</div>
+                </div>`;
+                return;
+            }
+            el.innerHTML = items.map(item => {
+                const stars = '★'.repeat(item.rating) + '☆'.repeat(5 - item.rating);
+                const priceText = item.price === 0 ? '🥬 0' : `🥬 ${item.price}`;
+                return `<div class="kitchen-item">
+                    <div class="kitchen-item-icon">${item.icon}</div>
+                    <div class="kitchen-item-info">
+                        <div class="kitchen-item-name">${escapeHtml(item.name)}</div>
+                        <div class="kitchen-item-desc">${escapeHtml(item.desc)}</div>
+                        <div class="kitchen-item-stars">${stars}</div>
+                        <div class="kitchen-item-price">${priceText}</div>
+                    </div>
+                    <div class="kitchen-item-add" onclick="addToKitchenCart(${item.id})">+</div>
+                </div>`;
+            }).join('');
+        }
+
+        function addToKitchenCart(itemId) {
+            const item = getMenuItems().find(i => i.id === itemId);
+            if (!item) return;
+            const existing = kitchenCart.find(c => c.id === itemId);
+            if (existing) {
+                existing.qty++;
+            } else {
+                kitchenCart.push({ id: itemId, name: item.name, price: item.price, icon: item.icon, qty: 1 });
+            }
+            updateKitchenCartBar();
+        }
+
+        function updateKitchenCartBar() {
+            const totalQty = kitchenCart.reduce((s, c) => s + c.qty, 0);
+            const totalPrice = kitchenCart.reduce((s, c) => s + c.price * c.qty, 0);
+            const bar = document.getElementById('kitchenCartBar');
+            if (totalQty === 0) {
+                bar.classList.remove('show');
+            } else {
+                bar.classList.add('show');
+                document.getElementById('kitchenCartCount').textContent = totalQty;
+                document.getElementById('kitchenCartTotal').textContent = '🥬 ' + totalPrice;
+            }
+        }
+
+        function openKitchenCart() {
+            const modal = document.getElementById('kitchenCartModal');
+            if (!modal) {
+                createKitchenCartModal();
+                return openKitchenCart();
+            }
+            renderKitchenCartContent();
+            modal.classList.add('show');
+        }
+
+        function createKitchenCartModal() {
+            const div = document.createElement('div');
+            div.id = 'kitchenCartModal';
+            div.className = 'kitchen-cart-modal';
+            div.innerHTML = `<div class="kitchen-cart-content" id="kitchenCartContent">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-gray-800 text-lg">🛒 购物车</h3>
+                    <button onclick="closeKitchenCart()" class="text-gray-400 text-xl">&times;</button>
+                </div>
+                <div id="kitchenCartList"></div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-gray-600">合计</span>
+                        <span class="font-bold text-pink-500 text-lg" id="kitchenCartModalTotal">🥬 0</span>
+                    </div>
+                    <input type="text" id="kitchenOrderNote" placeholder="订单备注（如：多加香菜）" class="w-full px-4 py-2 rounded-xl bg-pink-50 border border-pink-100 text-sm mb-3">
+                    <button onclick="submitKitchenOrder()" class="btn-primary w-full py-3 rounded-xl text-white font-bold text-sm">下单</button>
+                </div>
+            </div>`;
+            div.addEventListener('click', e => { if (e.target === div) closeKitchenCart(); });
+            document.body.appendChild(div);
+        }
+
+        function closeKitchenCart() {
+            document.getElementById('kitchenCartModal').classList.remove('show');
+        }
+
+        function renderKitchenCartContent() {
+            const list = document.getElementById('kitchenCartList');
+            if (kitchenCart.length === 0) {
+                list.innerHTML = '<div class="text-center py-8 text-gray-400">购物车是空的</div>';
+                document.getElementById('kitchenCartModalTotal').textContent = '🥬 0';
+                return;
+            }
+            list.innerHTML = kitchenCart.map((c, idx) => `
+                <div class="kitchen-order-item">
+                    <span class="text-xl">${c.icon}</span>
+                    <div class="flex-1">
+                        <div class="font-medium text-sm text-gray-800">${escapeHtml(c.name)}</div>
+                        <div class="text-xs text-green-600">🥬 ${c.price}</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="kitchen-qty-btn" onclick="changeKitchenCartQty(${idx}, -1)">-</div>
+                        <span class="text-sm font-medium w-4 text-center">${c.qty}</span>
+                        <div class="kitchen-qty-btn" onclick="changeKitchenCartQty(${idx}, 1)">+</div>
+                    </div>
+                </div>
+            `).join('');
+            const total = kitchenCart.reduce((s, c) => s + c.price * c.qty, 0);
+            document.getElementById('kitchenCartModalTotal').textContent = '🥬 ' + total;
+        }
+
+        function changeKitchenCartQty(idx, delta) {
+            kitchenCart[idx].qty += delta;
+            if (kitchenCart[idx].qty <= 0) kitchenCart.splice(idx, 1);
+            renderKitchenCartContent();
+            updateKitchenCartBar();
+        }
+
+        function submitKitchenOrder() {
+            if (kitchenCart.length === 0) { alert('购物车是空的'); return; }
+            const note = document.getElementById('kitchenOrderNote').value.trim();
+            const total = kitchenCart.reduce((s, c) => s + c.price * c.qty, 0);
+            const order = {
+                id: Date.now(),
+                items: [...kitchenCart],
+                total: total,
+                note: note,
+                time: new Date().toLocaleString('zh-CN'),
+                code: Math.floor(1000 + Math.random() * 9000)
+            };
+            kitchenOrders.unshift(order);
+            DB.set('kitchenOrders', kitchenOrders);
+            kitchenCart = [];
+            updateKitchenCartBar();
+            closeKitchenCart();
+            alert(`下单成功！取餐码：${order.code}`);
+            renderKitchenOrders();
+        }
+
+        function renderKitchenOrders() {
+            const el = document.getElementById('kitchenOrderList');
+            if (!el) return;
+            if (kitchenOrders.length === 0) {
+                el.innerHTML = '<div class="text-sm text-gray-400 text-center py-8">还没有订单哦</div>';
+                return;
+            }
+            el.innerHTML = kitchenOrders.map(o => `
+                <div class="kitchen-order-card">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs text-gray-400">${o.time}</span>
+                        <span class="bg-pink-100 text-pink-600 text-xs font-bold px-2 py-0.5 rounded">取餐码 ${o.code}</span>
+                    </div>
+                    ${o.items.map(i => `<div class="text-sm text-gray-700 py-0.5">${i.icon} ${escapeHtml(i.name)} x${i.qty}</div>`).join('')}
+                    ${o.note ? `<div class="text-xs text-gray-500 mt-1">备注：${escapeHtml(o.note)}</div>` : ''}
+                    <div class="text-right font-bold text-pink-500 mt-2">合计：🥬 ${o.total}</div>
+                </div>
+            `).join('');
+        }
+
         // ==================== 初始化 ====================
         document.addEventListener('DOMContentLoaded', () => {
             // 密码保护
@@ -1507,6 +1828,7 @@
             
             window.checkPassword = checkPassword;
             
+            kitchenOrders = DB.get('kitchenOrders', []);
             if (localStorage.getItem(AUTH_KEY) === 'true') {
                 document.getElementById('passwordScreen').classList.add('hidden');
                 initParticles(); renderHome();
